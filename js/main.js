@@ -9,6 +9,7 @@ var pc2;
 var pc3;
 
 var remoteStream;
+var remoteStream2;
 var turnReady;
 
 var pcConfig = {
@@ -156,7 +157,7 @@ function createPeerConnection() {
     
     pc2 = new RTCPeerConnection(null);
     pc2.onicecandidate = handleIceCandidate2;
-    pc2.onaddstream = handleRemoteStreamAdded;
+    pc2.onaddstream = handleRemoteStreamAdded2;
     pc2.onremovestream = handleRemoteStreamRemoved;
     
 
@@ -218,6 +219,8 @@ function handleCreateOfferError(event) {
 function doCall() {
   console.log('Sending offer to peer');
   pc.createOffer(setLocalAndSendMessage, handleCreateOfferError);
+  pc2.createOffer(setLocalAndSendMessage2, handleCreateOfferError);
+  
 }
 
 function doAnswer() {
@@ -226,10 +229,21 @@ function doAnswer() {
     setLocalAndSendMessage,
     onCreateSessionDescriptionError
   );
+  pc2.createAnswer().then(
+    setLocalAndSendMessage,
+    onCreateSessionDescriptionError
+  );
+  
 }
 
 function setLocalAndSendMessage(sessionDescription) {
   pc.setLocalDescription(sessionDescription);
+  console.log('setLocalAndSendMessage sending message', sessionDescription);
+  sendMessage(sessionDescription);
+}
+
+function setLocalAndSendMessage2(sessionDescription) {
+  pc2.setLocalDescription(sessionDescription);
   console.log('setLocalAndSendMessage sending message', sessionDescription);
   sendMessage(sessionDescription);
 }
@@ -270,6 +284,16 @@ function requestTurn(turnURL) {
 function handleRemoteStreamAdded(event) {
   console.log('Remote stream added.');
   remoteStream = event.stream;
+  remoteVideo.srcObject = remoteStream;
+}
+function handleRemoteStreamAdded2(event) {
+  console.error('Remote stream added.2');
+  remoteStream2 = event.stream;
+  remoteVideo2.srcObject = remoteStream;
+}
+function handleRemoteStreamAdded3(event) {
+  console.log('Remote stream added.3');
+  remoteStream = event.stream;
   console.error('handleRemoteStreamAdded', pc.localStreams)
   remoteVideo.srcObject = remoteStream;
 }
@@ -294,4 +318,8 @@ function stop() {
   isStarted = false;
   pc.close();
   pc = null;
+  
+  pc2.close();
+  pc2 = null;
+  
 }
