@@ -8,6 +8,10 @@ var pc;
 var remoteStream;
 var turnReady;
 
+var log = function (message) {
+  $('#log').append(`<div>${message}</div`);
+}
+
 var pcConfig = {
   'iceServers': [{
     'urls': 'stun:stun.l.google.com:19302'
@@ -35,6 +39,7 @@ if (room !== '') {
 
 socket.on('created', function (room) {
   console.log('Created room ' + room);
+  log('isInitiator = true');
   isInitiator = true;
 });
 
@@ -63,10 +68,10 @@ function sendMessage(message) {
   console.log('Client sending message: ', message);
   socket.emit('message', message);
 }
-
 // This client receives a message
 socket.on('message', function (message) {
-  console.log('Client received message:', message);
+  console.error('Client received message:', message);
+  $('#log').append(`<div>${message}</div>`);
   if (message === 'got user media') {
     maybeStart();
   } else if (message.type === 'offer') {
@@ -99,12 +104,12 @@ var remoteVideo = document.querySelector('#remoteVideo');
 
 navigator.mediaDevices.getUserMedia({
   audio: true,
-  // video: true
-  video: {
-    deviceId: {
-      exact: '8369a9255ce8358249a4ed148b2e2394ebc07dcabfe53dc27b53757b2320a972'
-    }
-  }
+  video: true
+  // video: {
+  //   deviceId: {
+  //     exact: '8369a9255ce8358249a4ed148b2e2394ebc07dcabfe53dc27b53757b2320a972'
+  //   }
+  // }
 })
   .then(gotStream)
   .catch(function (e) {
@@ -135,18 +140,27 @@ if (location.hostname !== 'localhost') {
 
 function maybeStart() {
   console.log('>>>>>>> maybeStart() ', isStarted, localStream, isChannelReady);
+  log('maybeStart')
   if (!isStarted && typeof localStream !== 'undefined' && isChannelReady) {
     console.log('>>>>>> creating peer connection');
+    log('maybeStart started')
+
     createPeerConnection();
     pc.addStream(localStream);
     // pc.addStream(localStream);
     // pc.addStream(localStream);
-    
+
     isStarted = true;
     console.log('isInitiator', isInitiator);
     if (isInitiator) {
+      log('maybeStart isInitiator')
       doCall();
+    } else {
+      log('maybeStart else')
+      console.error('isInitiator', isInitiator)
     }
+  } else {
+    console.error('errro', !isStarted && typeof localStream !== 'undefined' && isChannelReady)
   }
 }
 
@@ -189,7 +203,7 @@ function handleCreateOfferError(event) {
 }
 
 function doCall() {
-  console.log('Sending offer to peer');
+  console.error('Sending offer to peer');
   pc.createOffer(setLocalAndSendMessage, handleCreateOfferError);
 }
 

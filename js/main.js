@@ -71,6 +71,8 @@ function sendMessage(message) {
 // This client receives a message
 socket.on('message', function(message) {
   console.log('Client received message:', message);
+  $('#log').append(`<div>${message}</div>`);
+  console.error(message)
   if (message === 'got user media') {
     maybeStart();
   } else if (message.type === 'offer') {
@@ -134,6 +136,7 @@ function maybeStart() {
     console.log('>>>>>> creating peer connection');
     createPeerConnection();
     pc.addStream(localStream);
+    
     isStarted = true;
     console.log('isInitiator', isInitiator);
     if (isInitiator) {
@@ -143,6 +146,7 @@ function maybeStart() {
 }
 
 window.onbeforeunload = function() {
+  console.log('bye')
   sendMessage('bye');
 };
 

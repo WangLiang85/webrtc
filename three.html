@@ -6,7 +6,7 @@
   <title>Realtime communication with WebRTC</title>
 
   <link rel="stylesheet" href="/css/main.css" />
-
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 </head>
 
 <body>
@@ -18,6 +18,7 @@
     <br>
     <video id="remoteVideo" autoplay></video>
   </div>
+  <div id="log"></div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
